@@ -1,0 +1,17 @@
+{{if !isLogin}}
+<div>
+    <p>点击<a id="show_box" href="javascript:;">登录</a>，发表你的留言吧~</p>
+</div>
+{{else}}
+<form id="fm">
+    <!-- <div class="form-group">
+            <label for="txt_name">称呼：</label>
+            <input name="m_name" class="form-control" id="txt_name" type="text">
+          </div> -->
+    <div class="form-group">
+        <label for="txt_content">留言：</label>
+        <textarea name="m_content" class="form-control" id="txt_content" cols="80" rows="10"></textarea>
+    </div>
+    <button type="button" id="btn_send" class="btn btn-primary">提交</button>
+</form>
+{{/if}}

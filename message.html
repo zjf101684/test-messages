@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>留言板</title>
+  <link rel="stylesheet" href="./assets/bootstrap.css">
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/layer.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="display-1">留言板</h1>
+    <hr>
+    <ul id="messages" class="list-unstyled">
+
+    </ul>
+    <hr>
+    <div id="isLogin">
+        
+    </div>
+  </div>
+
+  <script>
+    loadLogin();
+    function loadLogin () {
+      // 发送ajax请求，请求留言的表单或者是提示登录的那句话
+      $.get('/isLogin', function (result) {
+        // 返回的结果就是请求留言的表单或者是提示登录的那句话
+        $('#isLogin').html(result);
+      });
+    }
+  </script>
+
+  <script>
+    let content = `
+    <form style="margin:20px 0 0 60px">
+        <div class="form-group">
+          <label for="user" stype="display:inline;">账户：</label>
+          <input name="u_name" type="text" class="form-control" id="user" style="display:inline;width:200px;" autocomplete="off" />
+        </div>
+        <div class="form-group">
+          <label for="password" style="display:inline;">密码：</label>
+          <input name="u_pwd" type="text" class="form-control" id="password" style="display:inline;width:200px;"
+            autocomplete="off" />
+        </div>
+        <button id="btn_login" type="button" class="btn btn-primary" style="margin-left: 80px;">登录</button>
+        <span>还没账号，马上<a href="javascript:;">注册</a></span>
+      </form>
+    `;
+
+    $('#isLogin').on('click', '#show_box', function () {
+      //页面层
+      layer.open({
+        type: 1,
+        title: '登录',
+        skin: 'layui-layer-rim', //加上边框
+        area: ['420px', '280px'], //宽高
+        content: content
+      });
+    });
+
+  </script>
+
+  <script>
+    // 发送ajax请求，请求 /getMsg 接口
+    $.get('/getMsg', function (data) {
+      // data 就是服务器返回的数据
+      // console.log(data);
+      $('#messages').html(data);
+    });
+  </script>
+
+  <script>
+    // 点击 id为btn_login的时候，发送ajax请求，将用户名和密码发送给服务器
+    $('body').on('click', '#btn_login', function () {
+      // console.log($(this).parents('form').serialize())
+      // console.log($(this).parents('form').serializeArray())
+      var d = $(this).parents('form').serialize();
+      // console.log(1111);
+      $.post('/login', d, function (data) {
+        // data是服务器返回的数据
+        // console.log(data); // 0 或者是 1
+        // 无论成功，还是失败，都让弹出层关闭
+        $('.layui-layer-close').click();
+        if (data === '1') {
+          // 表示登录成功，让留言的表单显示出来
+          // $('#fm').show();
+          // 登录成功，应该刷新页面
+          // location.href = '/message.html';
+          loadLogin();
+          // location.reload(); // reload方法，意思是让页面重写加载，和按F5是一个意思
+          // location.reload(true); // 表示强制刷新，和按 Ctrl + F5 是一个意思
+        }
+      });
+    });
+  </script>
+
+  <script>
+    $('#btn_send').click(function () {
+      // 收集表单中的称呼、留言内容，ajax提交给服务器
+      var d = $('#fm').serialize(); // 收集到用户输入的内容
+      // var dd = $('#fm').serializeArray(); // 数组
+      // console.log(dd);
+      $.post('/addMsg', d, function (data) {
+        // data 表示服务器返回的数据
+        // console.log(data);
+
+        // 添加成功
+        var str = `
+        <li class="media">
+            <img class="mr-3" src="./assets/avatar.png" alt="${data.m_name}">
+            <div class="media-body">
+                <h4>${data.m_name}</h4>
+                <p>${data.m_content}</p>
+                <p>${data.m_time}</p>
+            </div>
+        </li>
+        `;
+        // 把新的li追加到ul里面
+        $('#messages').append(str);
+        // 清空文本域的内容
+        $('#txt_content').val('');
+        // location.href = '/message.html';
+
+      });
+    });
+  </script>
+</body>
+
+</html>
